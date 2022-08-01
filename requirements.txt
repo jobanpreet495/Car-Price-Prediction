@@ -3,4 +3,4 @@ flask_cors
 pandas
 numpy
 gunicorn
-scikit-learn==0.23.2
+sklearn
