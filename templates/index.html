@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head xmlns="http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <title>Car Price Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+
+
+
+<style>
+    :root {
+--background-gradient: aqua;
+--gray: #34495e;
+--darkgray: #2c3e50;
+}
+h1{
+text-align: center;
+color: black;
+}
+select {
+/* Reset Select */
+appearance: none;
+outline: 0;
+border: 0;
+box-shadow: none;
+/* Personalize */
+flex: 1;
+padding: 0 1em;
+color: #fff;
+background-color: var(--darkgray);
+background-image: none;
+cursor: pointer;
+
+}
+/* Remove IE arrow */
+select::-ms-expand {
+display: none;
+}
+/* Custom Select wrapper */
+.select {
+position: relative;
+display: flex;
+width: 30em;
+height: 3em;
+border-radius: .25em;
+overflow: hidden;
+margin-left: 35%;
+}
+/* Arrow */
+.select::after {
+content: '\25BC';
+position: absolute;
+top: 0;
+right: 0;
+padding: 1em;
+background-color: #34495e;
+transition: .25s all ease;
+pointer-events: none;
+}
+/* Transition */
+.select:hover::after {
+color: aqua;
+}
+
+/* Other styles*/
+body {
+color: #fff;
+background: var(--background-gradient);
+}
+h1 {
+margin: 0 0 0.25em;
+}
+a {
+font-weight: bold;
+color: var(--gray);
+text-decoration: none;
+padding: .25em;
+border-radius: .25em;
+background: white;
+}
+input{
+position: relative;
+display: flex;
+width: 34em;
+height: 1.4em;
+border-radius: .25em;
+overflow: hidden;
+margin-left: 34.5%;
+
+position: absolute;
+
+padding: 1em;
+background-color: #34495e;
+
+}
+
+
+.button {
+background-color:  var(--darkgray); /* Green */
+border: none;
+color: white;
+padding: 16px 32px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 4px 2px;
+margin-left: 47%;
+margin-top: 70px;
+transition-duration: 0.4s;
+cursor: pointer;
+}
+.button1:hover {
+background-color: aqua;
+color: var(--darkgray);
+border: 4px solid var(--darkgray);
+
+}
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+
+                <h1>CAR PRICE PREDICTOR</h1>
+                <div style="text-align: center; margin-left: 70%; color: var(--darkgray); ">
+                   
+                    <h1><span  id="prediction"></span></h1>
+                 </div>
+               
+                <form method="post" accept-charset="utf-8" name="Modelform">
+                    <div style="text-align: center; color:black; margin-top: 20px;">
+                        <label><b>Select Company</b></label>
+                    
+                        <div class="select" style="margin-top: 10px;">
+                       
+                        <select  id="company" name="company" required="1"
+                                onchange="load_car_models(this.id,'car_models')">
+                            {% for company in companies %}
+                            <option value="{{ company }}">{{ company }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="text-align: center; color:black; margin-top: 20px;">
+                        <label><b>Select the model:</b> </label>
+                        <div class="select" style="margin-top: 10px;">
+                        <select id="car_models" name="car_models" required="1">
+                        </select>
+                    </div>
+                    </div>
+                   
+                    <div style="text-align: center; color:black; margin-top: 20px;">
+                        <label><b>Select Year of Purchase</b></label>
+                      <div class="select" style="margin-top: 10px;">
+                          <select id="year" name="year">
+                            {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option> 
+                            {% endfor %}
+                          </select>
+                        </div>
+                        </div>
+
+
+
+
+                 
+                    <div style="text-align: center; color:black; margin-top: 20px;">
+                        <label><b>Select Fuel Type</b></label>
+                    <div class="select" style="margin-top: 10px;">
+                        <select id="fuel_type" name="fuel_type">
+                          {% for fuel in fuel_types %}
+                          <option value="{{ fuel }}">{{fuel}}</option> 
+                          {% endfor %}
+                        </select>
+                      </div>
+                      
+                    </div>
+                    
+                    <div style="text-align: center; color:black; margin-top: 20px;">
+                        <label><b>Enter the Number of Kilometres that the car has travelled:</b> </label><br>
+                        <div style="width: 36em;
+                        height: 3em;
+                        border-radius: .25em; margin-left: 22.5%;">
+                        <input type="text" class="col-md-10 form-group" id="kilo_driven" name="kilo_driven"
+                               placeholder="Enter the kilometres driven ">
+                    </div>
+                    </div>
+                     
+                      
+            
+                   <div>
+                        <button style="text-align: center; margin-top: 10px;" class="button button1" onclick="send_data()">Predict Price</button>
+                    </div>
+                    </form>
+                
+               
+<script>
+
+    function load_car_models(company_id,car_model_id)
+    {
+        var company=document.getElementById(company_id);
+        var car_model= document.getElementById(car_model_id);
+        console.log(company.value);
+        car_model.value="";
+        car_model.innerHTML="";
+        {% for company in companies %}
+            if( company.value == "{{ company }}")
+            {
+                {% for model in car_models %}
+                    {% if company in model %}
+
+                        var newOption= document.createElement("option");
+                        newOption.value="{{ model }}";
+                        newOption.innerHTML="{{ model }}";
+                        car_model.options.add(newOption);
+                    {% endif %}
+                {% endfor %}
+            }
+        {% endfor %}
+    }
+
+    function form_handler(event) {
+        event.preventDefault(); // Don't submit the form normally
+    }
+    function send_data()
+    {
+        document.querySelector('form').addEventListener("submit",form_handler);
+
+        var fd=new FormData(document.querySelector('form'));
+
+        var xhr= new XMLHttpRequest({mozSystem: true});
+
+        xhr.open('POST','/predict',true);
+        document.getElementById('prediction').innerHTML="Wait! Predicting Price.....";
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == XMLHttpRequest.DONE){
+                document.getElementById('prediction').innerHTML="Prediction: ₹"+xhr.responseText;
+
+            }
+        };
+
+        xhr.onload= function(){};
+
+        xhr.send(fd);
+    }
+</script>
+
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+</body>
+</html>
