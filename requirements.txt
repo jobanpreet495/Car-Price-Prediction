@@ -3,4 +3,4 @@ flask_cors
 pandas
 numpy
 gunicorn
-sklearn==0.24.1
+sklearn
